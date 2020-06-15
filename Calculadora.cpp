@@ -1,13 +1,69 @@
 #include <bits/stdc++.h>
 #include <cstring>
-#include <locale.h>
+#include <locale>
+#include <cmath>
+#include <cstdlib>
 
 using namespace std;
 
-//Converte um numero decimal para binario
-string ConverterBinario(double decimal)
+//Retorna o tamanho do expoente de acordo a quantidade de bits
+int TamanhoExpoente(int bits)
 {
-	return "101.01";
+	if (bits == 8)
+		return 3;
+	else if (bits == 32)
+		return 8;
+	else if (bits == 64)
+		return 11;
+	else if (bits == 128)
+		return 15;
+	else
+		return 0;
+}
+
+//Retorna o tamanho da mantissa de acordo a quantidade de bits
+int TamanhoMantissa(int bits)
+{
+	if (bits == 8)
+		return 4;
+	else if (bits == 32)
+		return 23;
+	else if (bits == 64)
+		return 52;
+	else if (bits == 128)
+		return 112;
+	else
+		return 0;
+}
+
+//Converte um numero decimal para binario
+string ConverterBinario(double decimal, int bits)
+{
+	string binario = "";
+	//O padrao da quantidade de caracteres ignorados eh um pois na conversao pro padrao IEEE isola-se 1 algarismo
+	int exp_max, qntd_igr = 1;
+	double pnt_flut = 0;
+
+	//Acha o expoente de pontenciacao maximo para o numero decimal
+	for (exp_max = 0; decimal >= pow(2, exp_max + 1); exp_max++);
+	//Preenche a string com os valores 1 ou 0 de acordo a potenciacao de 2 ate que chegue ao limite da precisao
+	for (int exp = exp_max; TamanhoMantissa(bits) > binario.length() - qntd_igr || binario.empty(); exp--)
+	{
+		//Caso o expoente vire negativo adiciona um ponto para separar o binario e passa a ignorar dois caracteres
+		if (exp < 0 && qntd_igr == 1)
+		{
+			binario += ".";
+			qntd_igr++;
+		}
+		if (decimal - pnt_flut >= pow(2, exp))
+		{
+			pnt_flut += pow(2, exp);
+			binario += "1";
+		}
+		else
+			binario += "0";
+	}
+	return binario;
 }
 
 //Retorna o binario referente ao sinal do numero
@@ -15,13 +71,14 @@ string ConverterSinal(double decimal)
 {
 	if (decimal < 0)
 		return "1";
-	else if (decimal >= 0)
+	else
 		return "0";
 }
 
 //Retorna o binario referente ao expoente do numero
 string ConverterExpoente(double decimal)
 {
+	//ConverterBinario(decimal, 8);
 	return "101";
 }
 
@@ -67,17 +124,24 @@ int main()
 	double decimal;
 
 	cout << "Calculadora de AOC iniciada!" << endl;
-	cout << "Digite um número decimal, separado por ponto, que deseja converter: " << endl;
-	cin >> decimal;
-	cout << "SINAL || EXPOENTE || MANTISSA" << endl;
-	cout << "IEEE 8 BITS" << endl;
-	cout << Converter8Bits(decimal) << endl;
-	cout << "IEEE 32 BITS" << endl;
-	cout << Converter32Bits(decimal) << endl;
-	cout << "IEEE 64 BITS" << endl;
-	cout << Converter64Bits(decimal) << endl;
-	cout << "Hexadecimal" << endl;
-	cout << ConverterHexadecimal(decimal) << endl;
+	while (true)
+	{
+		cout << "Digite um número decimal, separado por ponto, que deseja converter, ou 0 para sair: " << endl;
+		cin >> decimal;
+		if (decimal == 0)
+			break;
+		cout << "SINAL || EXPOENTE || MANTISSA" << endl;
+		cout << "IEEE 8 BITS" << endl;
+		cout << Converter8Bits(decimal) << endl;
+		cout << "IEEE 32 BITS" << endl;
+		cout << Converter32Bits(decimal) << endl;
+		cout << "IEEE 64 BITS" << endl;
+		cout << Converter64Bits(decimal) << endl;
+		cout << "Hexadecimal" << endl;
+		cout << ConverterHexadecimal(decimal) << endl;
+		system("pause");
+		system("cls");
+	}
 
 	return 0;
 }
