@@ -1,100 +1,83 @@
-#include<bits/stdc++.h>
-#include<cstring>
+#include <bits/stdc++.h>
+#include <cstring>
+#include <locale.h>
+
 using namespace std;
 
-string ConversorBinario(int binario){
-	string resultado, valorString;
-	int aux=2;
-	stringstream ss;  
-	while(aux != 0){
-		aux = binario%2;
-		
-		ss << aux;
-		ss >> valorString;
-		strcat(resultado, valorString);
-		
-	}
-		
-	return resultado;
+//Converte um numero decimal para binario
+string ConverterBinario(double decimal)
+{
+	return "101.01";
 }
 
-string DecimalPF(double decimal){
-	char sinal;
-	string mantissa, expoente, resultado;
-	
-	
-	if(decimal < 0){
-		sinal = '0';
-	}else if(decimal > 0){
-		sinal = '1';
-	}
-	
-	//binario = decimal;
-	
-	expoente = ConversorBinario(decimal);
-	
-	
-	return resultado;
+//Retorna o binario referente ao sinal do numero
+string ConverterSinal(double decimal)
+{
+	if (decimal < 0)
+		return "1";
+	else if (decimal >= 0)
+		return "0";
 }
 
-double PFDecimal(int sinal, long long int expoente, long long int mantissa){
-	double Resultado;
-	
-	
-	return Resultado;
+//Retorna o binario referente ao expoente do numero
+string ConverterExpoente(double decimal)
+{
+	return "101";
 }
 
+//Retorna o binario referente a mantissa do numero
+string ConverterMantissa(double decimal)
+{
+	return "1011";
+}
 
-main(){
-	
-	double Decimal;
-	int OP, Sinal;
-	long long int Expoente, Mantissa;
-	cout<<"Calculadora de AOC iniciada!\n";
+//Converte um numero decimal para o padrão IEEE de 8 bits
+string Converter8Bits(double decimal)
+{
+	string sinal, expoente, mantissa;
 
-	while(OP != 0){
-		
-		cout<<"Opcoes:\n Ponto Flutuante para Decimal, Digite: 1\n Decimal para Ponto Flutuante, Digite: 2\n Digite 0 para sair da aplicação";
-		cout<<"\n";
-		cin>>OP;
-		while(true){
-		
-			if(OP == 1){
-				cout<<"Voce escolheu a opção de conversão Ponto Flutuante para Decimal\n";
-				cout<<"Insira o sinal: ";
-				cin>>Sinal;
-				cout<<"Insira o expoente: ";
-				cin>>Expoente;		
-				cout<<"Insira a mantissa: ";
-				cin>>Mantissa;
-			
-				cout<<"Representacao Decimal: "<<PFDecimal(Sinal, Expoente, Mantissa);
-				cout<<"Valor em : "<<PFDecimal(Sinal, Expoente, Mantissa);
-				cout<<"\n\n";
-				system("PAUSE");
-				
-				break;
-			}else if(OP == 2){
-				cout<<"Voce escolheu a opção de conversão Hexadecimal para Ponto Flutuante \n";
-				cout<<"Insira o valor: ";
-				cin>>Decimal;
-				cout<<"Valor em binario: "<<DecimalPF(Decimal);
-				
-			}else{
-				cout<<"Opção não identificada, tente novamente!";
-				break;
-			}
-		}
-		if(OP == 0){
-			cout<<"\nDesligando...";
-			break;
-		}
-	}
-	
-	
-	
-	
-	
-	cout<<endl;
-	system("PAUSE");
+	sinal = ConverterSinal(decimal);
+	expoente = ConverterExpoente(decimal);
+	mantissa = ConverterMantissa(decimal);
+
+	return sinal + " || " + expoente + " || " + mantissa;
+}
+
+//Converte um numero decimal para o padrão IEEE de 32 bits
+string Converter32Bits(double decimal)
+{
+	return "0 || 10110010 || 01110010100101001011110";
+}
+
+//Converte um numero decimal para o padrão IEEE de 64 bits
+string Converter64Bits(double decimal)
+{
+	return "0 || 10110010111 || 0111001010010100101111011101010001011010010111101000";
+}
+
+//Converte um ponto flutuante para hexadecimal
+string ConverterHexadecimal(double decimal)
+{
+	return "0x41A2CCCD";
+}
+
+int main()
+{
+	setlocale(LC_ALL, "Portuguese");
+	double decimal;
+
+	cout << "Calculadora de AOC iniciada!" << endl;
+	cout << "Digite um número decimal, separado por ponto, que deseja converter: " << endl;
+	cin >> decimal;
+	cout << "SINAL || EXPOENTE || MANTISSA" << endl;
+	cout << "IEEE 8 BITS" << endl;
+	cout << Converter8Bits(decimal) << endl;
+	cout << "IEEE 32 BITS" << endl;
+	cout << Converter32Bits(decimal) << endl;
+	cout << "IEEE 64 BITS" << endl;
+	cout << Converter64Bits(decimal) << endl;
+	cout << "Hexadecimal" << endl;
+	cout << ConverterHexadecimal(decimal) << endl;
+
+	return 0;
 }
