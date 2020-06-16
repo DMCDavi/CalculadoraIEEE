@@ -37,15 +37,16 @@ int TamanhoMantissa(int bits)
 }
 
 //Converte um numero decimal para binario
-string ConverterBinario(double decimal, int bits)
+string ConverterBinario(double numero, int bits)
 {
 	string binario = "";
 	//O padrao da quantidade de caracteres ignorados eh um pois na conversao pro padrao IEEE isola-se 1 algarismo
 	int exp_max, qntd_igr = 1;
-	double pnt_flut = 0;
+	double somatorio = 0;
 
 	//Acha o expoente de pontenciacao maximo para o numero decimal
-	for (exp_max = 0; decimal >= pow(2, exp_max + 1); exp_max++);
+	for (exp_max = 0; numero >= pow(2, exp_max + 1); exp_max++)
+		;
 	//Preenche a string com os valores 1 ou 0 de acordo a potenciacao de 2 ate que chegue ao limite da precisao
 	for (int exp = exp_max; TamanhoMantissa(bits) > binario.length() - qntd_igr || binario.empty(); exp--)
 	{
@@ -55,65 +56,84 @@ string ConverterBinario(double decimal, int bits)
 			binario += ".";
 			qntd_igr++;
 		}
-		if (decimal - pnt_flut >= pow(2, exp))
+		if (numero - somatorio >= pow(2, exp))
 		{
-			pnt_flut += pow(2, exp);
+			somatorio += pow(2, exp);
 			binario += "1";
 		}
 		else
 			binario += "0";
+		//Caso o numero ja tenha sido encontrado depois de preencher todo o expoente, sai do loop
+		if (somatorio == numero && exp <= 0)
+			break;
 	}
 	return binario;
 }
 
 //Retorna o binario referente ao sinal do numero
-string ConverterSinal(double decimal)
+string ConverterSinal(double numero)
 {
-	if (decimal < 0)
+	if (numero < 0)
 		return "1";
 	else
 		return "0";
 }
 
 //Retorna o binario referente ao expoente do numero
-string ConverterExpoente(double decimal)
+string ConverterExpoente(double numero, int bits)
 {
-	//ConverterBinario(decimal, 8);
-	return "101";
+	string binario, expoente_str;
+	int expoente_int, casas_decimais;
+
+	binario = ConverterBinario(numero, bits);
+	//Caso o numero esteja entre 0 e 1 a virgula percorre a direita
+	if (binario[0] == '0')
+		for (casas_decimais = 0; binario[0] == '0'; casas_decimais--)
+		{
+			//Apaga o primeiro algarismo e a virgula
+			binario.erase(0, 2);
+			//Insere um ponto apos o primeiro alagarismo
+			binario.insert(1, ".");
+		}
+	else
+		casas_decimais = binario.substr(1, binario.find(".") - 1).length();
+	//Soma a quantidade casas decimais que a virgula percorreu para isolar o primeiro algarismo com o BIAS
+	expoente_int = casas_decimais + pow(2, TamanhoExpoente(bits) - 1) - 1;
+	expoente_str = ConverterBinario(expoente_int, bits);
+	//Preenchendo a string com 0
+	for (int i = expoente_str.length(); i < TamanhoExpoente(bits); i++)
+		expoente_str.insert(0, "0");
+
+	return expoente_str;
 }
 
 //Retorna o binario referente a mantissa do numero
-string ConverterMantissa(double decimal)
+string ConverterMantissa(double numero, int bits)
 {
 	return "1011";
 }
 
 //Converte um numero decimal para o padrão IEEE de 8 bits
-string Converter8Bits(double decimal)
+string Converter8Bits(double numero)
+{
+	return "0 || 101 || 0111";
+}
+
+//Converte um numero decimal para o padrão IEEE724 de acordo a quantidade de bits especificado
+string ConverterIEEE(double numero, int bits)
 {
 	string sinal, expoente, mantissa;
 
-	sinal = ConverterSinal(decimal);
-	expoente = ConverterExpoente(decimal);
-	mantissa = ConverterMantissa(decimal);
+	sinal = ConverterSinal(numero);
+	expoente = ConverterExpoente(abs(numero), bits);
+	mantissa = ConverterMantissa(abs(numero), bits);
 
 	return sinal + " || " + expoente + " || " + mantissa;
 }
 
-//Converte um numero decimal para o padrão IEEE de 32 bits
-string Converter32Bits(double decimal)
-{
-	return "0 || 10110010 || 01110010100101001011110";
-}
 
-//Converte um numero decimal para o padrão IEEE de 64 bits
-string Converter64Bits(double decimal)
-{
-	return "0 || 10110010111 || 0111001010010100101111011101010001011010010111101000";
-}
-
-//Converte um ponto flutuante para hexadecimal
-string ConverterHexadecimal(double decimal)
+//Converte um numero em binario para hexadecimal
+string ConverterBinHex(string binario)
 {
 	return "0x41A2CCCD";
 }
@@ -121,24 +141,24 @@ string ConverterHexadecimal(double decimal)
 int main()
 {
 	setlocale(LC_ALL, "Portuguese");
-	double decimal;
+	double numero;
 
 	cout << "Calculadora de AOC iniciada!" << endl;
 	while (true)
 	{
 		cout << "Digite um número decimal, separado por ponto, que deseja converter, ou 0 para sair: " << endl;
-		cin >> decimal;
-		if (decimal == 0)
+		cin >> numero;
+		if (numero == 0)
 			break;
 		cout << "SINAL || EXPOENTE || MANTISSA" << endl;
 		cout << "IEEE 8 BITS" << endl;
-		cout << Converter8Bits(decimal) << endl;
+		cout << Converter8Bits(numero) << endl;
 		cout << "IEEE 32 BITS" << endl;
-		cout << Converter32Bits(decimal) << endl;
+		cout << ConverterIEEE(numero , 32) << endl;
 		cout << "IEEE 64 BITS" << endl;
-		cout << Converter64Bits(decimal) << endl;
+		cout << ConverterIEEE(numero , 64) << endl;
 		cout << "Hexadecimal" << endl;
-		cout << ConverterHexadecimal(decimal) << endl;
+		cout << ConverterBinHex("000111101") << endl;
 		system("pause");
 		system("cls");
 	}
