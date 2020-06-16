@@ -86,18 +86,19 @@ string ConverterExpoente(double numero, int bits)
 	int expoente_int, casas_decimais;
 
 	binario = ConverterBinario(numero, bits);
-	//Caso o numero esteja entre 0 e 1 a virgula percorre a direita
+	//Caso o numero esteja entre 0 e 1 o ponto percorre a direita
 	if (binario[0] == '0')
 		for (casas_decimais = 0; binario[0] == '0'; casas_decimais--)
 		{
-			//Apaga o primeiro algarismo e a virgula
+			//Apaga o primeiro algarismo e o ponto
 			binario.erase(0, 2);
 			//Insere um ponto apos o primeiro alagarismo
 			binario.insert(1, ".");
 		}
+	//Senao o ponto percorre a esquerda
 	else
 		casas_decimais = binario.substr(1, binario.find(".") - 1).length();
-	//Soma a quantidade casas decimais que a virgula percorreu para isolar o primeiro algarismo com o BIAS
+	//Soma a quantidade casas decimais que o ponto percorreu para isolar o primeiro algarismo com o BIAS
 	expoente_int = casas_decimais + pow(2, TamanhoExpoente(bits) - 1) - 1;
 	expoente_str = ConverterBinario(expoente_int, bits);
 	//Preenchendo a string com 0
@@ -110,7 +111,36 @@ string ConverterExpoente(double numero, int bits)
 //Retorna o binario referente a mantissa do numero
 string ConverterMantissa(double numero, int bits)
 {
-	return "1011";
+	string binario, mantissa;
+	int ponto_pos;
+
+	binario = ConverterBinario(numero, bits);
+	//Caso o numero esteja entre 0 e 1 o ponto percorre a direita
+	if (binario[0] == '0')
+		while (binario[0] == '0')
+		{
+			//Apaga o primeiro algarismo e o ponto
+			binario.erase(0, 2);
+			//Insere um ponto apos o primeiro alagarismo
+			binario.insert(1, ".");
+		}
+	//Senao o ponto percorre a esquerda
+	else
+		while (binario.substr(0, binario.find(".")).length() > 1)
+		{
+			ponto_pos = binario.find(".");
+			//Apaga o ponto
+			binario.erase(ponto_pos, 1);
+			//Insere um ponto na posicao anterior ao que estava antes
+			binario.insert(ponto_pos - 1, ".");
+		}
+	//Separando a mantissa
+	mantissa = binario.substr(binario.find(".") + 1, binario.length());
+	//Preenchendo a string com 0
+	for (int i = mantissa.length(); i < TamanhoMantissa(bits); i++)
+		mantissa += "0";
+
+	return mantissa;
 }
 
 //Converte um numero decimal para o padrão IEEE de 8 bits
@@ -130,7 +160,6 @@ string ConverterIEEE(double numero, int bits)
 
 	return sinal + " || " + expoente + " || " + mantissa;
 }
-
 
 //Converte um numero em binario para hexadecimal
 string ConverterBinHex(string binario)
@@ -154,9 +183,9 @@ int main()
 		cout << "IEEE 8 BITS" << endl;
 		cout << Converter8Bits(numero) << endl;
 		cout << "IEEE 32 BITS" << endl;
-		cout << ConverterIEEE(numero , 32) << endl;
+		cout << ConverterIEEE(numero, 32) << endl;
 		cout << "IEEE 64 BITS" << endl;
-		cout << ConverterIEEE(numero , 64) << endl;
+		cout << ConverterIEEE(numero, 64) << endl;
 		cout << "Hexadecimal" << endl;
 		cout << ConverterBinHex("000111101") << endl;
 		system("pause");
