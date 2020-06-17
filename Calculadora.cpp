@@ -125,7 +125,7 @@ string ConverterMantissa(double numero, int bits)
 			binario.insert(1, ".");
 		}
 	//Senao o ponto percorre a esquerda
-	else if(binario.find(".") != -1)
+	else if (binario.find(".") != -1)
 		while (binario.substr(0, binario.find(".")).length() > 1)
 		{
 			ponto_pos = binario.find(".");
@@ -135,7 +135,10 @@ string ConverterMantissa(double numero, int bits)
 			binario.insert(ponto_pos - 1, ".");
 		}
 	//Separando a mantissa
-	mantissa = binario.substr(binario.find(".") + 1, binario.length());
+	if (binario.find(".") != -1)
+		mantissa = binario.substr(binario.find(".") + 1, binario.length());
+	else
+		mantissa = binario.substr(1, binario.length());
 	//Preenchendo a string com 0
 	for (int i = mantissa.length(); i < TamanhoMantissa(bits); i++)
 		mantissa += "0";
@@ -148,72 +151,84 @@ string excesso(int expoente)
 
 	string resultado;
 
-    if (expoente == -4) resultado = "000";
-    else if (expoente == -3) resultado = "001";
-    else if (expoente == -2) resultado = "010";
-    else if (expoente == -1) resultado = "011";
-    else if (expoente == 0) resultado = "100";
-	else if (expoente == 1) resultado = "101";
-    else if (expoente == 2) resultado = "110";
-    else if (expoente == 3) resultado = "111";
-    else if (expoente > 3) resultado = "Overflow";
-    else if (expoente < -1) resultado = "Underflow";
+	if (expoente == -4)
+		resultado = "000";
+	else if (expoente == -3)
+		resultado = "001";
+	else if (expoente == -2)
+		resultado = "010";
+	else if (expoente == -1)
+		resultado = "011";
+	else if (expoente == 0)
+		resultado = "100";
+	else if (expoente == 1)
+		resultado = "101";
+	else if (expoente == 2)
+		resultado = "110";
+	else if (expoente == 3)
+		resultado = "111";
+	else if (expoente > 3)
+		resultado = "Overflow";
+	else if (expoente < -1)
+		resultado = "Underflow";
 
-    return resultado;
+	return resultado;
 }
 
 //Converte um numero decimal para o padrÃ£o IEEE de 8 bits
 string Converter8Bits(double numero)
 {
-	string expoente, mantissa="", sinal;
+	string expoente, mantissa = "", sinal;
 	string bin = ConverterBinario(abs(numero), 8);
+
 	sinal = ConverterSinal(numero);
 	int exp = 0;
 	int pos = bin.find(".");
-	if(pos == -1){
+	if (pos == -1)
+	{
 		exp = bin.length();
 		expoente = excesso(exp);
-		while(bin.length() < 4){
+		while (bin.length() < 4)
+		{
 			bin.append("0");
 		}
 		mantissa = bin;
 	}
-	else{
+	else
+	{
 		bin.erase(pos, 1);
-	
-	
-	
-	
-	if(abs(numero) >= 1)
-		exp = pos;
-	else{
-		int i = 0;
-		while(bin[pos++] != '1'){
-			i--;
+
+		if (abs(numero) >= 1)
+			exp = pos;
+		else
+		{
+			int i = 0;
+			while (bin[pos++] != '1')
+			{
+				i--;
+			}
+			pos = i;
 		}
-		pos = i;
-		
-		
+
+		mantissa = bin;
+		expoente = excesso(pos);
+
+		while (mantissa[0] == '0')
+		{
+			mantissa.erase(0, 1);
+		}
+
+		while (mantissa.length() < 4)
+		{
+			mantissa.append("0");
+		}
+
+		while (mantissa.length() > 4)
+		{
+			mantissa.erase(mantissa.length() - 1);
+		}
 	}
-	
-	mantissa = bin;
-	expoente = excesso(pos);
-	
-	while(mantissa[0]=='0'){
-		mantissa.erase(0,1);
-	}
-	
-	while(mantissa.length() < 4){
-		mantissa.append("0");
-	}
-	
-	while(mantissa.length() > 4){
-		mantissa.erase(mantissa.length()-1);
-	}
-	}
-	
-	
-	
+
 	return sinal + " || " + expoente + " || " + mantissa;
 }
 
@@ -229,31 +244,31 @@ string ConverterIEEE(double numero, int bits)
 	return sinal + " || " + expoente + " || " + mantissa;
 }
 
-//Converte 4 binários em 1 hexadecimal
+//Converte 4 binï¿½rios em 1 hexadecimal
 string Converter4Bin_1Hex(string binario)
 {
 	int decimal = 0;
-	string hexa="0";
-	for(int i=0; i<4;i++)
+	string hexa = "0";
+	for (int i = 0; i < 4; i++)
 	{
-		decimal += (binario[i]-'1'+1)*pow(2, 3-i);
+		decimal += (binario[i] - '1' + 1) * pow(2, 3 - i);
 	}
-	if(decimal < 10)
+	if (decimal < 10)
 		hexa[0] = decimal + '1' - 1;
 	else
-		hexa[0] = decimal-10 +'A';
+		hexa[0] = decimal - 10 + 'A';
 	return hexa;
 }
 
 //Converte um numero em binario para hexadecimal
 string ConverterBinHex(string binario)
 {
-	int i = binario.length()-1;
+	int i = binario.length() - 1;
 	string hexa = "0x";
-	while(i>=0)
+	while (i >= 0)
 	{
 		string aux = "0000";
-		for(int j=3; j>=0 && i>=0; j--)
+		for (int j = 3; j >= 0 && i >= 0; j--)
 		{
 			aux[j] = binario[i];
 			i--;
@@ -267,6 +282,7 @@ int main()
 {
 	setlocale(LC_ALL, "Portuguese");
 	double numero;
+	string binario_32;
 
 	cout << "Calculadora de AOC iniciada!" << endl;
 	while (true)
@@ -279,11 +295,14 @@ int main()
 		cout << "IEEE 8 BITS" << endl;
 		cout << Converter8Bits(numero) << endl;
 		cout << "IEEE 32 BITS" << endl;
-		cout << ConverterIEEE(numero, 32) << endl;
+		binario_32 = ConverterIEEE(numero, 32);
+		cout << binario_32 << endl;
 		cout << "IEEE 64 BITS" << endl;
 		cout << ConverterIEEE(numero, 64) << endl;
 		cout << "Hexadecimal" << endl;
-		cout << ConverterBinHex("000111101") << endl;
+		binario_32 = binario_32.erase(binario_32.find(" || "), 4);
+		binario_32 = binario_32.erase(binario_32.find(" || "), 4);
+		cout << ConverterBinHex(binario_32) << endl;
 		system("pause");
 		system("cls");
 	}
