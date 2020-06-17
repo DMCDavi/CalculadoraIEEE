@@ -125,7 +125,7 @@ string ConverterMantissa(double numero, int bits)
 			binario.insert(1, ".");
 		}
 	//Senao o ponto percorre a esquerda
-	else
+	else if(binario.find(".") != -1)
 		while (binario.substr(0, binario.find(".")).length() > 1)
 		{
 			ponto_pos = binario.find(".");
@@ -143,10 +143,78 @@ string ConverterMantissa(double numero, int bits)
 	return mantissa;
 }
 
+string excesso(int expoente)
+{
+
+	string resultado;
+
+    if (expoente == -4) resultado = "000";
+    else if (expoente == -3) resultado = "001";
+    else if (expoente == -2) resultado = "010";
+    else if (expoente == -1) resultado = "011";
+    else if (expoente == 0) resultado = "100";
+	else if (expoente == 1) resultado = "101";
+    else if (expoente == 2) resultado = "110";
+    else if (expoente == 3) resultado = "111";
+    else if (expoente > 3) resultado = "Overflow";
+    else if (expoente < -1) resultado = "Underflow";
+
+    return resultado;
+}
+
 //Converte um numero decimal para o padrão IEEE de 8 bits
 string Converter8Bits(double numero)
 {
-	return "0 || 101 || 0111";
+	string expoente, mantissa="", sinal;
+	string bin = ConverterBinario(abs(numero), 8);
+	sinal = ConverterSinal(numero);
+	int exp = 0;
+	int pos = bin.find(".");
+	if(pos == -1){
+		exp = bin.length();
+		expoente = excesso(exp);
+		while(bin.length() < 4){
+			bin.append("0");
+		}
+		mantissa = bin;
+	}
+	else{
+		bin.erase(pos, 1);
+	
+	
+	
+	
+	if(abs(numero) >= 1)
+		exp = pos;
+	else{
+		int i = 0;
+		while(bin[pos++] != '1'){
+			i--;
+		}
+		pos = i;
+		
+		
+	}
+	
+	mantissa = bin;
+	expoente = excesso(pos);
+	
+	while(mantissa[0]=='0'){
+		mantissa.erase(0,1);
+	}
+	
+	while(mantissa.length() < 4){
+		mantissa.append("0");
+	}
+	
+	while(mantissa.length() > 4){
+		mantissa.erase(mantissa.length()-1);
+	}
+	}
+	
+	
+	
+	return sinal + " || " + expoente + " || " + mantissa;
 }
 
 //Converte um numero decimal para o padrão IEEE724 de acordo a quantidade de bits especificado
