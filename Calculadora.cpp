@@ -161,10 +161,38 @@ string ConverterIEEE(double numero, int bits)
 	return sinal + " || " + expoente + " || " + mantissa;
 }
 
+//Converte 4 binários em 1 hexadecimal
+string Converter4Bin_1Hex(string binario)
+{
+	int decimal = 0;
+	string hexa="0";
+	for(int i=0; i<4;i++)
+	{
+		decimal += (binario[i]-'1'+1)*pow(2, 3-i);
+	}
+	if(decimal < 10)
+		hexa[0] = decimal + '1' - 1;
+	else
+		hexa[0] = decimal-10 +'A';
+	return hexa;
+}
+
 //Converte um numero em binario para hexadecimal
 string ConverterBinHex(string binario)
 {
-	return "0x41A2CCCD";
+	int i = binario.length()-1;
+	string hexa = "0x";
+	while(i>=0)
+	{
+		string aux = "0000";
+		for(int j=3; j>=0 && i>=0; j--)
+		{
+			aux[j] = binario[i];
+			i--;
+		}
+		hexa.insert(2, Converter4Bin_1Hex(aux));
+	}
+	return hexa;
 }
 
 int main()
