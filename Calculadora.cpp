@@ -1,3 +1,11 @@
+/*
+EQUIPE:
+- Davi Costa
+- Guilherme Vergne
+- Grhamm Pabst
+- João Felipe
+*/
+
 #include <bits/stdc++.h>
 #include <cstring>
 #include <locale>
@@ -297,14 +305,14 @@ int main()
 		if (numero == 0)
 			break;
 		cout << "SINAL || EXPOENTE || MANTISSA" << endl;
-		cout << "IEEE 8 BITS" << endl;
+		cout << "Ponto Flutuante 8 BITS" << endl;
 		cout << Converter8Bits(numero) << endl;
 		cout << "IEEE 32 BITS" << endl;
 		binario_32 = ConverterIEEE(numero, 32);
 		cout << binario_32 << endl;
 		cout << "IEEE 64 BITS" << endl;
 		cout << ConverterIEEE(numero, 64) << endl;
-		cout << "Representação IEEE 32 BITS em Hexadecimal" << endl;
+		cout << "Ponto Flutuante em Hexadecimal" << endl;
 		binario_32 = binario_32.erase(binario_32.find(" || "), 4);
 		binario_32 = binario_32.erase(binario_32.find(" || "), 4);
 		cout << ConverterBinHex(binario_32) << endl;
