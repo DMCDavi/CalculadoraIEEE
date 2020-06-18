@@ -36,6 +36,35 @@ int TamanhoMantissa(int bits)
 		return 0;
 }
 
+//Tabela auxiliar que converte a quantidade de casas percorridas pela virgula em binario
+string Tabela8Bits(int expoente)
+{
+	string resultado;
+
+	if (expoente == -4)
+		resultado = "000";
+	else if (expoente == -3)
+		resultado = "001";
+	else if (expoente == -2)
+		resultado = "010";
+	else if (expoente == -1)
+		resultado = "011";
+	else if (expoente == 0)
+		resultado = "100";
+	else if (expoente == 1)
+		resultado = "101";
+	else if (expoente == 2)
+		resultado = "110";
+	else if (expoente == 3)
+		resultado = "111";
+	else if (expoente > 3)
+		resultado = "Overflow";
+	else if (expoente < -1)
+		resultado = "Underflow";
+
+	return resultado;
+}
+
 //Converte um numero decimal para binario
 string ConverterBinario(double numero, int bits)
 {
@@ -134,10 +163,11 @@ string ConverterMantissa(double numero, int bits)
 			//Insere um ponto na posicao anterior ao que estava antes
 			binario.insert(ponto_pos - 1, ".");
 		}
-	//Separando a mantissa
+	//Se o binario nao representar um numero inteiro separa a mantissa a partir do ponto
 	if (binario.find(".") != -1)
 		mantissa = binario.substr(binario.find(".") + 1, binario.length());
 	else
+		//Se o binario representar um numero inteiro, a mantissa sera dada a partir do segundo algarismo
 		mantissa = binario.substr(1, binario.length());
 	//Preenchendo a string com 0
 	for (int i = mantissa.length(); i < TamanhoMantissa(bits); i++)
@@ -146,60 +176,36 @@ string ConverterMantissa(double numero, int bits)
 	return mantissa;
 }
 
-string excesso(int expoente)
-{
-
-	string resultado;
-
-	if (expoente == -4)
-		resultado = "000";
-	else if (expoente == -3)
-		resultado = "001";
-	else if (expoente == -2)
-		resultado = "010";
-	else if (expoente == -1)
-		resultado = "011";
-	else if (expoente == 0)
-		resultado = "100";
-	else if (expoente == 1)
-		resultado = "101";
-	else if (expoente == 2)
-		resultado = "110";
-	else if (expoente == 3)
-		resultado = "111";
-	else if (expoente > 3)
-		resultado = "Overflow";
-	else if (expoente < -1)
-		resultado = "Underflow";
-
-	return resultado;
-}
-
 //Converte um numero decimal para o padrÃ£o IEEE de 8 bits
 string Converter8Bits(double numero)
 {
 	string expoente, mantissa = "", sinal;
 	string bin = ConverterBinario(abs(numero), 8);
+	int exp = 0, pos;
 
 	sinal = ConverterSinal(numero);
-	int exp = 0;
-	int pos = bin.find(".");
+	//Seta a posicao em que o ponto esta
+	pos = bin.find(".");
+	//Se o binario representar um numero inteiro
 	if (pos == -1)
 	{
 		exp = bin.length();
-		expoente = excesso(exp);
+		expoente = Tabela8Bits(exp);
+		//Preenche a mantissa com 0
 		while (bin.length() < 4)
 		{
 			bin.append("0");
 		}
 		mantissa = bin;
 	}
+	//Se o binario representar um numero fracionario
 	else
 	{
+		//Apaga o ponto
 		bin.erase(pos, 1);
-
 		if (abs(numero) >= 1)
 			exp = pos;
+		//Se o numero estiver entre 0 e 1 caminha o ponto para a direita
 		else
 		{
 			int i = 0;
@@ -209,24 +215,17 @@ string Converter8Bits(double numero)
 			}
 			pos = i;
 		}
-
 		mantissa = bin;
-		expoente = excesso(pos);
-
+		expoente = Tabela8Bits(pos);
+		//Se a mantissa comecar com 0, apaga o primeiro algarismo ate ser diferente de 0
 		while (mantissa[0] == '0')
-		{
 			mantissa.erase(0, 1);
-		}
-
-		while (mantissa.length() < 4)
-		{
+		//Preenche o resto da mantissa com 0
+		while (mantissa.length() < TamanhoMantissa(8))
 			mantissa.append("0");
-		}
-
-		while (mantissa.length() > 4)
-		{
+		//Desconsidera bits que rompem o limite da mantissa de 8 bits
+		while (mantissa.length() > TamanhoMantissa(8))
 			mantissa.erase(mantissa.length() - 1);
-		}
 	}
 
 	return sinal + " || " + expoente + " || " + mantissa;
@@ -244,19 +243,21 @@ string ConverterIEEE(double numero, int bits)
 	return sinal + " || " + expoente + " || " + mantissa;
 }
 
-//Converte 4 binï¿½rios em 1 hexadecimal
+//Converte 4 binarios em 1 hexadecimal
 string Converter4Bin_1Hex(string binario)
 {
 	int decimal = 0;
 	string hexa = "0";
+
+	//Converte cada algarismo para hexadecimal
 	for (int i = 0; i < 4; i++)
-	{
 		decimal += (binario[i] - '1' + 1) * pow(2, 3 - i);
-	}
+	//Caso passe de 10 preenche com letra
 	if (decimal < 10)
 		hexa[0] = decimal + '1' - 1;
 	else
 		hexa[0] = decimal - 10 + 'A';
+
 	return hexa;
 }
 
@@ -265,6 +266,8 @@ string ConverterBinHex(string binario)
 {
 	int i = binario.length() - 1;
 	string hexa = "0x";
+
+	//Separa o binario em blocos de 4
 	while (i >= 0)
 	{
 		string aux = "0000";
@@ -273,8 +276,10 @@ string ConverterBinHex(string binario)
 			aux[j] = binario[i];
 			i--;
 		}
+		//Junta todos os blocos
 		hexa.insert(2, Converter4Bin_1Hex(aux));
 	}
+	
 	return hexa;
 }
 
@@ -287,7 +292,7 @@ int main()
 	cout << "Calculadora de AOC iniciada!" << endl;
 	while (true)
 	{
-		cout << "Digite um nÃºmero decimal, separado por ponto, que deseja converter, ou 0 para sair: " << endl;
+		cout << "Digite um número decimal, separado por ponto, que deseja converter, ou 0 para sair: " << endl;
 		cin >> numero;
 		if (numero == 0)
 			break;
@@ -299,7 +304,7 @@ int main()
 		cout << binario_32 << endl;
 		cout << "IEEE 64 BITS" << endl;
 		cout << ConverterIEEE(numero, 64) << endl;
-		cout << "Hexadecimal" << endl;
+		cout << "Representação IEEE 32 BITS em Hexadecimal" << endl;
 		binario_32 = binario_32.erase(binario_32.find(" || "), 4);
 		binario_32 = binario_32.erase(binario_32.find(" || "), 4);
 		cout << ConverterBinHex(binario_32) << endl;
